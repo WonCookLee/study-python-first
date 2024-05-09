@@ -2,6 +2,7 @@ from playwright.sync_api import sync_playwright
 import time
 from bs4 import BeautifulSoup
 import csv
+from file import save_to_file
 
 def wantedJobsScraper(keyword) :
     jobs_db = []
@@ -9,7 +10,7 @@ def wantedJobsScraper(keyword) :
     with sync_playwright() as playwright:
         chromium = playwright.firefox
         # 브라우저 안보이게 실행 = True
-        browser = chromium.launch(headless=True)
+        browser = chromium.launch(headless=False)
         page = browser.new_page()
         page.goto("https://www.wanted.co.kr/")
         time.sleep(5)
@@ -21,10 +22,11 @@ def wantedJobsScraper(keyword) :
         page.click("button.Aside_searchButton__Xhqq3")
         time.sleep(3)
 
-        print("검색어를 입력 전")
+        print("검색어를 입력 전", keyword)
         input = page.get_by_placeholder("검색어를 입력해 주세요.")
         input.fill(keyword)
 
+        time.sleep(1)
         print("엔터 전")
         page.keyboard.down("Enter")
         time.sleep(4)
@@ -35,7 +37,7 @@ def wantedJobsScraper(keyword) :
 
         for i in range(8):
             page.keyboard.down("End")
-            time.sleep(3)
+            time.sleep(4)
 
         content = page.content()
         # print(content)
@@ -62,22 +64,18 @@ def wantedJobsScraper(keyword) :
             jobs_db.append(job_data)
         
     
-    print("wantedJobsScraper end ", jobs_db)
+    #print("wantedJobsScraper end ", jobs_db)
     return jobs_db
 
 keywords = [
     "java",
     "react",
+    "flutter",
 ]
 
-file = open("jobs.csv", "w", encoding="utf-8", newline = "")
-writer = csv.writer(file)
-writer.writerow(["keyword", "title", "company", "reward", "link"])
 
 for keyword in keywords :
     jobs_db = wantedJobsScraper(keyword)
-    
-    for job_data in jobs_db :
-        writer.writerow(job_data.values())
+    save_to_file(keyword, jobs_db)
 
-file.close()
+
