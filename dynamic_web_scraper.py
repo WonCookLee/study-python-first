@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import time
 from bs4 import BeautifulSoup
+import csv
 
 with sync_playwright() as playwright:
     chromium = playwright.chromium
@@ -36,16 +37,23 @@ with sync_playwright() as playwright:
     soup = BeautifulSoup(content, "html.parser")
     
     jobs = soup.find_all("div", class_="JobCard_container__FqChn")
+    jobs_db = []
     for job in jobs :
         title = job.find("strong", class_="JobCard_title__ddkwM")
         company = job.find("span", class_="JobCard_companyName__vZMqJ")
+        reward = job.find("span", class_="JobCard_reward__sdyHn")
         link = job.find("a").get("href")
         job_data = {
             "title" : title.text,
             "company" : company.text,
+            "reward" : reward.text,
             "link" : f"https://www.wanted.co.kr{link}",
         }
-        print(job_data)
-        
+        jobs_db.append(job_data)
     
-
+    file = open("java_jobs.csv", "w", encoding="utf-8", newline = "")
+    writer = csv.writer(file)
+    writer.writerow(["title", "company", "reward", "link"])
+    
+    for job_data in jobs_db :
+        writer.writerow(job_data.values())
