@@ -11,7 +11,10 @@
 
 <body>
     <main class="container">
-        <h1>Search Results for "{{keyword}}"</h1>
+        <hgroup>
+            <h1>Search Results for "{{keyword}}"</h1>
+            <a href="/export?keyword={{keyword}}">Export to File</a>
+        </hgroup>
         <table class="striped">
             <thead>
                 <th>Title</th>
