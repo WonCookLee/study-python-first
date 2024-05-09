@@ -1,30 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
 
-url = "https://weworkremotely.com/categories/remote-full-stack-programming-jobs"
-
-response = requests.get(url)
+response = requests.get("https://weworkremotely.com/remote-full-time-jobs?page=1")
 
 # print(response.content)
 soup = BeautifulSoup(response.content, "html.parser")
 
-jobs = soup.find("section", id="category-2").find_all("li")[1:-1]
+pages = soup.find("div", class_="pagination").find_all("span", class_="page")
 
-# print(jobs)
+for index in range(len(pages)) :
+    page_num = index+1
+    url = f"https://weworkremotely.com/remote-full-time-jobs?page={page_num}"
+    response = requests.get(url)
+    jobs = soup.find("section", class_="jobs").find_all("li")[0:-1]
 
-all_jobs = []
-for job in jobs:
-    title = job.find("span", class_="title")
+    all_jobs = []
+    for job in jobs:
+        title = job.find("span", class_="title")
 
-    company, position, region  = job.find_all("span", class_="company")[0:3]
-    
-    job_data = {
-        "title" : title.text,
-        "company" : company.text,
-        "position" : position.text,
-        "region" : region.text,
-    }
-    all_jobs.append(job_data);
-    
-print(all_jobs)
+        company, position, region  = job.find_all("span", class_="company")[0:3]
+        link = job.find_all("a")[-1].get("href")
+        
+        job_data = {
+            "title" : title.text,
+            "company" : company.text,
+            "position" : position.text,
+            "region" : region.text,
+            "link" : f"https://weworkremotely.com{link}",
+        }
+        all_jobs.append(job_data);
+        
+    print(f"pageNo : {page_num}", all_jobs)
+
+
+
+
     
